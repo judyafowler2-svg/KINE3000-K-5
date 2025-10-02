@@ -1,0 +1,555 @@
+import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
+
+const InteractiveChapter = () => {
+  const [currentSection, setCurrentSection] = useState(0);
+  const [completedSections, setCompletedSections] = useState(new Set());
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [showFeedback, setShowFeedback] = useState({});
+
+  const quizzes = [
+    {
+      section: 0,
+      questions: [
+        {
+          id: 'q1',
+          question: "You're teaching a kindergarten class. Some 5-year-olds can kick a ball well, while others struggle. What's the BEST explanation?",
+          options: [
+            { text: "Some kids are just naturally athletic", feedback: "Not quite! While genetics play a role, the bigger factor here is..." },
+            { text: "Different amounts of practice, encouragement, and instruction", feedback: "Exactly! Motor learning depends heavily on experience. Some kids have been playing soccer with older siblings, others haven't had much ball experience yet. This is why we provide lots of practice opportunities!", correct: true },
+            { text: "The struggling kids have developmental delays", feedback: "Be careful here! At age 5, there's huge variation in what's 'normal.' Most just need more practice, not a referral." },
+            { text: "They'll all catch up naturally by age 7", feedback: "This is a common myth. Without practice and instruction, gaps often widen, not close. We need to actively support all learners!" }
+          ]
+        }
+      ]
+    },
+    {
+      section: 1,
+      questions: [
+        {
+          id: 'q2',
+          question: "A first-grade student keeps missing catches. You notice they're using a busy, colorful backdrop. What's your best first step?",
+          options: [
+            { text: "Tell them to focus harder", feedback: "Their figure-ground perception is still developing! Telling them to 'focus' doesn't address the visual challenge." },
+            { text: "Move them to a plain wall backdrop and use a bright ball", feedback: "Perfect! You're applying perceptual-motor knowledge. Young children can't easily distinguish objects from busy backgrounds. Simple environmental changes = more success!", correct: true },
+            { text: "Give them a bigger ball", feedback: "Good thinking about equipment modification, but the main issue here is visual perception, not ball size." },
+            { text: "Have them practice more in the same spot", feedback: "More practice in a poor environment won't help. Change the environment first!" }
+          ]
+        },
+        {
+          id: 'q2b',
+          question: "Why do we use fleece balls and Wiffle balls with young children instead of regulation balls?",
+          options: [
+            { text: "They're cheaper", feedback: "Cost is a bonus, but not the main reason!" },
+            { text: "They're safer", feedback: "Safety matters, but there's a deeper developmental reason..." },
+            { text: "They travel slower, giving kids more time to process visual information", feedback: "Exactly! Young children's visual tracking abilities are still developing. Slower-moving objects give their brains more time to process trajectory and speed, increasing success rates.", correct: true },
+            { text: "They're more fun", feedback: "Fun is important, but this choice is based on visual perception development!" }
+          ]
+        }
+      ]
+    },
+    {
+      section: 2,
+      questions: [
+        {
+          id: 'q3',
+          question: "You're observing a 3-year-old attempt to throw. Their movements are jerky and uncoordinated. What stage are they in, and what should you focus on?",
+          options: [
+            { text: "Mature stage - focus on accuracy", feedback: "At age 3 with jerky movements? Definitely not mature stage yet!" },
+            { text: "Initial stage - provide encouragement and lots of opportunities to practice", feedback: "Yes! At the initial stage, children are constrained by their body proportions and neuromuscular development. Your job is to create fun practice opportunities, use scaled equipment, and celebrate their efforts. The mechanics will come with growth AND practice!", correct: true },
+            { text: "Emerging-elementary - teach proper form immediately", feedback: "Close, but at 3 years old with very uncoordinated movements, they're likely still in the initial stage. Detailed form instruction won't help yet - they need play and practice!" },
+            { text: "They have a motor delay and need special help", feedback: "This is typical for age 3! Not every awkward movement is a delay. Give them time, practice, and developmentally appropriate activities." }
+          ]
+        },
+        {
+          id: 'q3b',
+          question: "A 4th grader (age 9) still can't catch consistently with hands only - they trap the ball against their chest. What's likely happening?",
+          options: [
+            { text: "This is normal for their age", feedback: "By age 9, most children have the POTENTIAL for mature catching if they've had practice. This suggests a learning gap, not a developmental timeline issue." },
+            { text: "They likely lacked sufficient practice and instruction in earlier grades", feedback: "Exactly! This child has the physical maturity for mature-stage catching but missed the practice and instruction window. The good news? With focused practice and feedback, they can still learn - it just takes more effort than if they'd learned it earlier.", correct: true },
+            { text: "They need to be tested for vision problems", feedback: "Possible, but the most common reason is insufficient practice and instruction, not a medical issue. Try targeted practice first." },
+            { text: "Some kids just can't catch", feedback: "Not true! With appropriate instruction and practice, nearly all children can reach mature-stage performance in fundamental skills." }
+          ]
+        }
+      ]
+    },
+    {
+      section: 3,
+      questions: [
+        {
+          id: 'q4',
+          question: "Your 3rd-grade class is learning soccer. Should they play full 11v11 games like professionals?",
+          options: [
+            { text: "Yes, they need to learn the real game", feedback: "Hold on! Think about attention, decision-making, and skill application..." },
+            { text: "No, use small-sided games (3v3 or 4v4) with modified rules", feedback: "Perfect! At the transition stage, children need small-sided games that narrow their attention to manageable skill and strategy choices. Full games overwhelm them with too many players, too much space, and too many decisions. Small-sided games = more touches, more learning, more success!", correct: true },
+            { text: "Yes, but with smaller goals", feedback: "Smaller goals help, but the real issue is the number of players. 11v11 is overwhelming for transition-stage learners." },
+            { text: "No, they should only do drills, not games", feedback: "Games are important! But gamelike activities and small-sided games, not full regulation games." }
+          ]
+        },
+        {
+          id: 'q4b',
+          question: "A 5th grader says they hate basketball because they 'stink at it.' What's your best response as a teacher?",
+          options: [
+            { text: "Tell them everyone develops at different rates and not to worry", feedback: "This is kind but doesn't give them actionable help or motivation to improve." },
+            { text: "Make them play anyway because PE is required", feedback: "This reinforces their negative feelings and teaches them physical activity is something to endure, not enjoy." },
+            { text: "Help them identify specific skills to work on and provide modified practice opportunities", feedback: "Excellent! Application-stage learners care deeply about competence. Help them see improvement is possible through specific practice. Maybe they struggle with dribbling - create dribbling challenges at their level. Success builds motivation!", correct: true },
+            { text: "Suggest they try a different sport", feedback: "This might be appropriate eventually, but first try helping them build competence. Once they feel capable, they might enjoy it!" }
+          ]
+        }
+      ]
+    },
+    {
+      section: 4,
+      questions: [
+        {
+          id: 'q5',
+          question: "You're teaching volleyball serves to beginners. They're all over the place with their tosses. What should be your PRIMARY teaching focus?",
+          options: [
+            { text: "Where to hit the ball for power", feedback: "Too advanced! They're beginners - they can't think about power when they can't even contact the ball consistently." },
+            { text: "The basic movement pattern: toss placement, body position, arm swing sequence", feedback: "Yes! Beginner-level learners need to focus on the stable features of the skill - the basic movement pattern. Once they can perform the pattern consistently, THEN you can work on flexible features like power and placement.", correct: true },
+            { text: "Serving strategy and where opponents are standing", feedback: "Way too advanced! This is for intermediate to advanced learners who can already serve consistently." },
+            { text: "Have them watch professional volleyball videos", feedback: "Demonstration can help, but beginners need clear, simple instruction about the basic pattern with lots of practice time." }
+          ]
+        },
+        {
+          id: 'q5b',
+          question: "An intermediate-level student can dribble a basketball well in practice but loses the ball in game situations. What's the issue?",
+          options: [
+            { text: "They need more basic dribbling practice", feedback: "They can already dribble! The issue isn't the basic skill." },
+            { text: "They need practice adapting their dribbling to changing conditions and combining it with decision-making", feedback: "Exactly! Intermediate learners can perform skills consistently but need practice varying conditions. In games, they must dribble WHILE watching defenders, making decisions, and adapting to movement. Set up practice situations that mirror these challenges - defenders, changing speeds, tight spaces!", correct: true },
+            { text: "They're just not good at basketball", feedback: "Not true! They have the skill but need practice applying it in authentic, changing environments. This is totally normal for intermediate-level learners." },
+            { text: "They should go back to beginner-level drills", feedback: "Going backward won't help. They need to move forward with more complex, gamelike practice." }
+          ]
+        }
+      ]
+    }
+  ];
+
+  const sections = [
+    {
+      title: "Welcome to Motor Development",
+      content: (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-blue-600">Why This Matters</h2>
+          <p className="text-lg">Children aren't miniature adults! Their movement abilities develop through predictable stages, and understanding these stages helps teachers design better activities.</p>
+          
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
+            <p className="font-semibold">Key Insight:</p>
+            <p>Motor development (age-related changes) + Motor learning (practice-based changes) = How children become skilled movers</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div className="bg-blue-50 p-4 rounded">
+              <h3 className="font-bold mb-2">Motor Development</h3>
+              <p className="text-sm">Progressive, age-related changes</p>
+              <p className="text-xs mt-2 italic">Example: An 8-year-old runs faster than a 4-year-old</p>
+            </div>
+            <div className="bg-green-50 p-4 rounded">
+              <h3 className="font-bold mb-2">Motor Learning</h3>
+              <p className="text-sm">Changes from practice & experience</p>
+              <p className="text-xs mt-2 italic">Example: A beginner vs. advanced tennis player</p>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Perception & Movement",
+      content: (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-purple-600">Every Movement Starts with Perception</h2>
+          <p>Before you can catch a ball, you need to SEE it coming, FEEL your body position, and process that information. This is perceptual-motor development.</p>
+
+          <div className="bg-purple-50 p-4 rounded my-4">
+            <h3 className="font-bold mb-3">Vision Development Timeline:</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-purple-600 text-white px-2 py-1 rounded text-sm">Age 4-8</span>
+                <span className="text-sm">Figure-ground perception improves (seeing ball vs. background)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-purple-600 text-white px-2 py-1 rounded text-sm">Age 5-6</span>
+                <span className="text-sm">Can track objects moving horizontally</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-purple-600 text-white px-2 py-1 rounded text-sm">Age 8-9</span>
+                <span className="text-sm">Can track objects moving in an arc</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-purple-600 text-white px-2 py-1 rounded text-sm">Age 15</span>
+                <span className="text-sm">Reaches adult level for tracking</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-green-50 p-4 rounded">
+            <h3 className="font-bold mb-2">Teaching Tip:</h3>
+            <p className="text-sm">Use bright-colored equipment, slow-moving balls (fleece/Wiffle), and decrease distractions to help young children succeed!</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Fundamental Movement Phase",
+      content: (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-orange-600">Ages 2-7: Learning the Basics</h2>
+          <p>During this phase, children learn fundamental skills like running, jumping, throwing, and catching.</p>
+
+          <div className="space-y-3 mt-4">
+            <div className="border-l-4 border-red-400 bg-red-50 p-3">
+              <h3 className="font-bold text-red-700">Initial Stage (Ages 2-3)</h3>
+              <p className="text-sm">First attempts, uncoordinated, limited by body proportions (big head, short limbs)</p>
+            </div>
+
+            <div className="border-l-4 border-yellow-400 bg-yellow-50 p-3">
+              <h3 className="font-bold text-yellow-700">Emerging-Elementary (Ages 3-5)</h3>
+              <p className="text-sm">Better control but still awkward. Growth + practice = improvement!</p>
+            </div>
+
+            <div className="border-l-4 border-green-400 bg-green-50 p-3">
+              <h3 className="font-bold text-green-700">Mature Stage (Ages 6-7)</h3>
+              <p className="text-sm">Well-coordinated, biomechanically efficient movements. Ready for sports!</p>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 p-4 rounded mt-4">
+            <p className="font-semibold mb-2">Critical Point:</p>
+            <p className="text-sm">Without practice, encouragement, and good instruction, children may NEVER reach the mature stage in some skills, even as adults!</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Specialized Movement Phase",
+      content: (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-indigo-600">Ages 7+: From Skills to Sports</h2>
+          <p>Now children apply their fundamental skills to actual games, sports, and activities.</p>
+
+          <div className="space-y-3 mt-4">
+            <div className="bg-indigo-50 border-2 border-indigo-300 p-4 rounded">
+              <h3 className="font-bold text-indigo-700 mb-2">Transition Stage (Ages 7-10)</h3>
+              <ul className="text-sm space-y-1 ml-4">
+                <li>• Fundamental skill → Sport skill (kicking → soccer instep kick)</li>
+                <li>• Learn through gamelike activities, NOT full official sports yet</li>
+                <li>• Small-sided games help manage attention and decision-making</li>
+              </ul>
+            </div>
+
+            <div className="bg-purple-50 border-2 border-purple-300 p-4 rounded">
+              <h3 className="font-bold text-purple-700 mb-2">Application Stage (Ages 11-13)</h3>
+              <ul className="text-sm space-y-1 ml-4">
+                <li>• Combine multiple skills in real game situations</li>
+                <li>• Form, accuracy, and strategy become important</li>
+                <li>• Begin selecting preferred activities</li>
+              </ul>
+            </div>
+
+            <div className="bg-pink-50 border-2 border-pink-300 p-4 rounded">
+              <h3 className="font-bold text-pink-700 mb-2">Lifelong Utilization (Age 14+)</h3>
+              <ul className="text-sm space-y-1 ml-4">
+                <li>• Select activities for fun, fitness, and fulfillment</li>
+                <li>• Continue throughout life in competitive or recreational settings</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Learning Levels",
+      content: (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-teal-600">Three Levels of Learning Any New Skill</h2>
+          <p>Unlike developmental stages (age-based), learning levels depend on practice and experience. Adults learning golf start as beginners too!</p>
+
+          <div className="grid grid-cols-1 gap-4 mt-4">
+            <div className="bg-red-50 border-2 border-red-300 p-4 rounded">
+              <h3 className="font-bold text-red-700 mb-2">🎯 Beginner Level</h3>
+              <div className="text-sm space-y-2">
+                <p><strong>Characteristics:</strong> Uncoordinated, jerky, can't screen out irrelevant info</p>
+                <p><strong>Goal:</strong> Understand body placement and timing</p>
+                <p><strong>Teacher Focus:</strong> How to perform the movement pattern, what to pay attention to</p>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 border-2 border-yellow-300 p-4 rounded">
+              <h3 className="font-bold text-yellow-700 mb-2">🎯 Intermediate Level</h3>
+              <div className="text-sm space-y-2">
+                <p><strong>Characteristics:</strong> More consistent, developing "feel" for the skill</p>
+                <p><strong>Goal:</strong> Combine skills and perform in various activities</p>
+                <p><strong>Teacher Focus:</strong> Refining patterns, varying conditions, authentic practice</p>
+              </div>
+            </div>
+
+            <div className="bg-green-50 border-2 border-green-300 p-4 rounded">
+              <h3 className="font-bold text-green-700 mb-2">🎯 Advanced Level</h3>
+              <div className="text-sm space-y-2">
+                <p><strong>Characteristics:</strong> Consistent, automatic, effortless-looking (but not effortless!)</p>
+                <p><strong>Goal:</strong> Automatic performance with strategic decision-making</p>
+                <p><strong>Teacher Focus:</strong> Challenging game situations, strategy, fine-tuning</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-100 p-4 rounded mt-4">
+            <p className="font-semibold">Reality Check:</p>
+            <p className="text-sm">Most elementary children (and many adults!) are at the intermediate level. That's perfectly fine for healthy, enjoyable participation!</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Putting It All Together",
+      content: (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-green-600">The Big Picture</h2>
+          
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg">
+            <h3 className="font-bold text-lg mb-3">Key Takeaways:</h3>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <Check className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                <p className="text-sm">Development happens with age AND practice. You can't make kids grow faster, but you can provide better learning environments.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <Check className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                <p className="text-sm">Perception and movement develop together. Young children need modified equipment and simplified environments.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <Check className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                <p className="text-sm">Without quality instruction and practice, children may never reach mature movement patterns in some skills.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <Check className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                <p className="text-sm">Everyone progresses through learning levels (beginner → intermediate → advanced) when learning new skills, regardless of age.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <Check className="text-green-600 flex-shrink-0 mt-1" size={20} />
+                <p className="text-sm">Match your teaching to BOTH the developmental stage AND learning level of your students.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 border-2 border-yellow-400 p-4 rounded mt-4">
+            <h3 className="font-bold mb-2">For Teachers:</h3>
+            <p className="text-sm">Design your lessons considering: student age/maturity, their perceptual abilities, their skill level, and provide scaled equipment, appropriate challenges, and lots of encouragement!</p>
+          </div>
+
+          <div className="text-center mt-6 p-4 bg-green-50 rounded">
+            <p className="font-bold text-green-700">🎉 You've completed the interactive guide!</p>
+            <p className="text-sm mt-2">You now understand the fundamentals of how children develop movement skills and how to support their learning.</p>
+          </div>
+        </div>
+      )
+    }
+  ];
+
+  const handleNext = () => {
+    if (currentSection < sections.length - 1) {
+      const currentQuiz = quizzes.find(q => q.section === currentSection);
+      if (currentQuiz) {
+        setShowQuiz(true);
+      } else {
+        setCompletedSections(prev => new Set([...prev, currentSection]));
+        setCurrentSection(currentSection + 1);
+      }
+    }
+  };
+
+  const handleQuizComplete = () => {
+    setCompletedSections(prev => new Set([...prev, currentSection]));
+    setCurrentSection(currentSection + 1);
+    setShowQuiz(false);
+    setQuizAnswers({});
+    setShowFeedback({});
+  };
+
+  const handleAnswer = (questionId, answer) => {
+    setQuizAnswers(prev => ({ ...prev, [questionId]: answer }));
+    setShowFeedback(prev => ({ ...prev, [questionId]: true }));
+  };
+
+  const handlePrevious = () => {
+    if (currentSection > 0) {
+      setShowQuiz(false);
+      setCurrentSection(currentSection - 1);
+    }
+  };
+
+  const progress = ((currentSection + 1) / sections.length) * 100;
+
+  const QuizSection = ({ quiz, answers, feedback, onAnswer, onComplete }) => {
+    if (!quiz) return null;
+
+    const allAnswered = quiz.questions.every(q => answers[q.id]);
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-lg border-2 border-blue-300">
+          <h2 className="text-2xl font-bold text-blue-800 mb-2">Check Your Understanding</h2>
+          <p className="text-sm text-gray-700">These scenarios help you connect concepts to real PE classrooms. Not graded - just for your learning!</p>
+        </div>
+
+        {quiz.questions.map((question, idx) => (
+          <div key={question.id} className="bg-white border-2 border-gray-300 rounded-lg p-5">
+            <h3 className="font-bold text-lg mb-4 text-gray-800">
+              Scenario {idx + 1}: {question.question}
+            </h3>
+            
+            <div className="space-y-3">
+              {question.options.map((option, optionIdx) => {
+                const isSelected = answers[question.id] === optionIdx;
+                const showThisFeedback = feedback[question.id] && isSelected;
+                
+                return (
+                  <div key={optionIdx}>
+                    <button
+                      onClick={() => onAnswer(question.id, optionIdx)}
+                      disabled={feedback[question.id]}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                        !feedback[question.id]
+                          ? 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                          : isSelected && option.correct
+                          ? 'border-green-500 bg-green-50'
+                          : isSelected
+                          ? 'border-orange-400 bg-orange-50'
+                          : 'border-gray-200 bg-gray-50 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                          !feedback[question.id]
+                            ? 'border-gray-400'
+                            : isSelected && option.correct
+                            ? 'border-green-500 bg-green-500'
+                            : isSelected
+                            ? 'border-orange-400 bg-orange-400'
+                            : 'border-gray-300'
+                        }`}>
+                          {showThisFeedback && (option.correct ? '✓' : '→')}
+                        </div>
+                        <span className="flex-1">{option.text}</span>
+                      </div>
+                    </button>
+                    
+                    {showThisFeedback && (
+                      <div className={`mt-2 ml-9 p-3 rounded ${
+                        option.correct ? 'bg-green-100 border-l-4 border-green-500' : 'bg-blue-100 border-l-4 border-blue-500'
+                      }`}>
+                        <p className="text-sm">{option.feedback}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        {allAnswered && (
+          <div className="text-center">
+            <button
+              onClick={onComplete}
+              className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+            >
+              Continue to Next Section →
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-white min-h-screen">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">The Moving Child</h1>
+        <p className="text-gray-600">Interactive Guide to Motor Development & Learning</p>
+        
+        <div className="mt-4">
+          <div className="flex justify-between text-sm text-gray-600 mb-1">
+            <span>Section {currentSection + 1} of {sections.length}</span>
+            <span>{Math.round(progress)}% Complete</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-4 flex gap-2 flex-wrap">
+        {sections.map((section, idx) => (
+          <button
+            key={idx}
+            onClick={() => {
+              setCurrentSection(idx);
+              setShowQuiz(false);
+            }}
+            className={`px-3 py-1 rounded text-sm transition-colors ${
+              idx === currentSection
+                ? 'bg-blue-600 text-white'
+                : completedSections.has(idx)
+                ? 'bg-green-100 text-green-700 border border-green-300'
+                : 'bg-gray-100 text-gray-700 border border-gray-300'
+            }`}
+          >
+            {completedSections.has(idx) && idx !== currentSection && (
+              <Check size={14} className="inline mr-1" />
+            )}
+            {idx + 1}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm min-h-[500px]">
+        {!showQuiz ? (
+          sections[currentSection].content
+        ) : (
+          <QuizSection 
+            quiz={quizzes.find(q => q.section === currentSection)}
+            answers={quizAnswers}
+            feedback={showFeedback}
+            onAnswer={handleAnswer}
+            onComplete={handleQuizComplete}
+          />
+        )}
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={handlePrevious}
+          disabled={currentSection === 0 || showQuiz}
+          className={`flex items-center gap-2 px-4 py-2 rounded ${
+            currentSection === 0 || showQuiz
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-gray-600 text-white hover:bg-gray-700'
+          }`}
+        >
+          <ChevronLeft size={20} />
+          Previous
+        </button>
+
+        <button
+          onClick={handleNext}
+          disabled={currentSection === sections.length - 1 || showQuiz}
+          className={`flex items-center gap-2 px-4 py-2 rounded ${
+            currentSection === sections.length - 1 || showQuiz
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {currentSection < sections.length - 1 && quizzes.find(q => q.section === currentSection) ? 'Check Understanding' : 'Next'}
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default InteractiveChapter;
